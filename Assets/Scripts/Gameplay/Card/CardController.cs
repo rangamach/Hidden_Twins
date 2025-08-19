@@ -33,7 +33,6 @@ public class CardController
         CardModel.SetFrontImage(frontSprite);
         CardView.SetFrontSprite(frontSprite);
         CardModel.IsMatched = false;
-        CardModel.IsRevealed = false;
         CardView.ResetView();
 
         HideCard();

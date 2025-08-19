@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameplayController
 {
-    private int maxCards = 36;
+    private int maxCards = 16;
     public GameplayView gameplayView { get; private set; }
     public GameplayModel gameplayModel { get; private set; }
     public CardSO CardSO { get; private set; }
@@ -16,10 +16,10 @@ public class GameplayController
     private CardController firstFlippedCard = null;
     private CardController secondFlippedCard = null;
     private bool isCheckingMatch = false;
-    public GameplayController(GameplayView gameplayView,CardSO cardSO, Difficulty difficulty)
+    public GameplayController(GameplayView gameplayView,CardSO cardSO)
         {
             this.gameplayView = Object.Instantiate(gameplayView.gameObject).GetComponent<GameplayView>();
-            this.gameplayModel = new GameplayModel(difficulty);
+            this.gameplayModel = new GameplayModel();
 
             this.CardSO = cardSO;
 
@@ -32,7 +32,6 @@ public class GameplayController
                 cardControllers.Add(controller);
                 this.gameplayView.PlaceCards(controller.CardView, 6);
             }
-            CreateBoard(difficulty);
         }
     private void CreateBoard(Difficulty difficulty)
     {
@@ -43,16 +42,16 @@ public class GameplayController
         List<Sprite> chosenFronts = new List<Sprite>();
         ShuffleDeck(CardSO.FrontImages);
 
-        for (int i = 0; i < totalCards/2; i++)
+        for (int i = 0; i < totalCards / 2; i++)
         {
             chosenFronts.Add(CardSO.FrontImages[i]);
             chosenFronts.Add(CardSO.FrontImages[i]);
         }
         ShuffleDeck(chosenFronts);
 
-        for(int i = 0;i<maxCards; i++)
+        for (int i = 0; i < maxCards; i++)
         {
-            if(i<totalCards)
+            if (i < totalCards)
             {
                 cardControllers[i].ResetCard(chosenFronts[i]);
                 cardControllers[i].CardView.SetCardSize(GetCardSize(difficulty));
@@ -70,13 +69,10 @@ public class GameplayController
     {
         switch(difficulty)
         {
-            case Difficulty.Easy:
-                return new Vector2(3.75f, 3.75f);
             case Difficulty.Normal:
                 return new Vector2(1.75f, 1.75f);
             default:
                 return new Vector2(1.75f, 1.75f);
-
         }
     }
     private void ShuffleDeck<T>(List<T> list)
@@ -149,6 +145,7 @@ public class GameplayController
     {
         Debug.Log("You Won!!!");
     }
+    public void Play(Difficulty difficulty) => CreateBoard(difficulty);
 }
 
 
