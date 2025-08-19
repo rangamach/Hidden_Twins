@@ -3,8 +3,7 @@ using UnityEngine.UI;
 public enum Difficulty
 {
     Easy,
-    Medium,
-    Hard,
+    Normal,
 }
 
 public class GameplayModel
@@ -29,11 +28,8 @@ public class GameplayModel
             case Difficulty.Easy:
                 this.gridSize = 2;
                 break;
-            case Difficulty.Medium:
+            case Difficulty.Normal:
                 this.gridSize = 4;
-                break;
-            case Difficulty.Hard:
-                this.gridSize = 6;
                 break;
         }
     }

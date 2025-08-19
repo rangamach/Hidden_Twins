@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,10 +20,19 @@ public class CardView : MonoBehaviour
     private void Awake()
     {
         cardButton = GetComponent<Button>();
+        cardButton.onClick.AddListener(OnCardClick);
 
         frontImage = transform.Find("Front").GetComponent<Image>();
         backImage = transform.Find("Back").GetComponent<Image>();
         
+    }
+    private void OnCardClick()
+    {
+        if(isBusy || isMatched)
+        {
+            return;
+        }
+        cardController.OnCardClicked();
     }
     public void ResetView()
     {
@@ -31,6 +41,46 @@ public class CardView : MonoBehaviour
         frontImage.enabled = false;
         backImage.enabled = true;
     }
+    public void SetCardSize(Vector2 size)
+    {
+        frontImage.transform.localScale = size;
+        backImage.transform.localScale = size;
+    }
     public void SetFrontSprite(Sprite sprite) => this.frontImage.sprite = sprite;
+    public void SetBackSprite(Sprite sprite) => this.backImage.sprite = sprite;  
     public void SetController(CardController controller) => this.cardController = controller;
+
+    public void FlipCard(bool showFront)
+    {
+        if (isBusy) return;
+        StartCoroutine(FlipRoutine(showFront));
+    }
+    private IEnumerator FlipRoutine(bool showFront)
+    {
+        isBusy = true;
+        float time = 0;
+        Vector3 initialscale = transform.localScale;
+
+        while (time < flipDuration)
+        {
+            time += Time.deltaTime;
+            float scaleX = Mathf.Lerp(initialscale.x, 0f, time / flipDuration);
+            transform.localScale = new Vector3(scaleX, initialscale.y, initialscale.z);
+            yield return null;
+        }
+
+        frontImage.enabled = showFront;
+        backImage.enabled = !showFront;
+        isRevealed = showFront;
+
+        time = 0;
+        while (time < flipDuration)
+        {
+            time += Time.deltaTime;
+            float scaleX = Mathf.Lerp(0f, initialscale.x, time / flipDuration);
+            transform.localScale = new Vector3(scaleX, initialscale.y, initialscale.z);
+            yield return null;
+        }
+        isBusy = false;
+    }
 }

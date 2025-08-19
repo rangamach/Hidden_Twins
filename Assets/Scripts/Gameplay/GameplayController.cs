@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +12,11 @@ public class GameplayController
     private List<CardController> activeCards = new List<CardController>();
     private List<CardController> cardControllers = new List<CardController>();   
     private System.Random randomNumberGenerator = new System.Random();
-        public GameplayController(GameplayView gameplayView,CardSO cardSO, Difficulty difficulty)
+
+    private CardController firstFlippedCard = null;
+    private CardController secondFlippedCard = null;
+    private bool isCheckingMatch = false;
+    public GameplayController(GameplayView gameplayView,CardSO cardSO, Difficulty difficulty)
         {
             this.gameplayView = Object.Instantiate(gameplayView.gameObject).GetComponent<GameplayView>();
             this.gameplayModel = new GameplayModel(difficulty);
@@ -50,7 +55,9 @@ public class GameplayController
             if(i<totalCards)
             {
                 cardControllers[i].ResetCard(chosenFronts[i]);
+                cardControllers[i].CardView.SetCardSize(GetCardSize(difficulty));
                 cardControllers[i].CardView.gameObject.SetActive(true);
+                cardControllers[i].SetGameplayController(this);
             }
             else
             {
@@ -58,6 +65,19 @@ public class GameplayController
             }
         }
         gameplayView.AdjustGrid(gridSize);
+    }
+    private Vector2 GetCardSize(Difficulty difficulty)
+    {
+        switch(difficulty)
+        {
+            case Difficulty.Easy:
+                return new Vector2(3.75f, 3.75f);
+            case Difficulty.Normal:
+                return new Vector2(1.75f, 1.75f);
+            default:
+                return new Vector2(1.75f, 1.75f);
+
+        }
     }
     private void ShuffleDeck<T>(List<T> list)
     {
@@ -71,7 +91,42 @@ public class GameplayController
     }
     public void RestartGame(Difficulty difficulty)
     {
-        //gameplayModel.SetDifficulty(difficulty);
         CreateBoard(difficulty);
     }
+    public void OnCardFlipped(CardController card)
+    {
+        if (isCheckingMatch) return;
+
+        if (firstFlippedCard == null)
+        {
+            firstFlippedCard = card;
+        }
+        else if (secondFlippedCard == null && card != firstFlippedCard)
+        {
+            secondFlippedCard = card;
+            GameService.Instance.StartCoroutine(CheckMatchRoutine());
+        }
+    }
+    private IEnumerator CheckMatchRoutine()
+    {
+        isCheckingMatch = true;
+
+        yield return new WaitForSeconds(0.5f);
+
+        if (firstFlippedCard.CardModel.FrontImage == secondFlippedCard.CardModel.FrontImage)
+        {
+            firstFlippedCard.MarkMarched();
+            secondFlippedCard.MarkMarched();
+        }
+        else
+        {
+            firstFlippedCard.HideCard();
+            secondFlippedCard.HideCard();
+        }
+        firstFlippedCard = null;
+        secondFlippedCard = null;
+        isCheckingMatch = false;
+    }
 }
+
+

@@ -252,4 +252,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridLayoutGroup: {fileID: 8169330365287187995}
-  cellArea: 600
+  cellArea: 800
