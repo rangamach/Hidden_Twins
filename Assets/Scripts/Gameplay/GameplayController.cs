@@ -115,8 +115,13 @@ public class GameplayController
 
         if (firstFlippedCard.CardModel.FrontImage == secondFlippedCard.CardModel.FrontImage)
         {
-            firstFlippedCard.MarkMarched();
-            secondFlippedCard.MarkMarched();
+            firstFlippedCard.MarkMatched();
+            secondFlippedCard.MarkMatched();
+
+            if(WinCheck())
+            {
+                OnGameWon();
+            }
         }
         else
         {
@@ -128,6 +133,22 @@ public class GameplayController
         isCheckingMatch = false;
     }
     public bool IsBusyChecking() => isCheckingMatch;
+    private bool WinCheck()
+    {
+        foreach (var controller in cardControllers)
+        {
+            if(controller.CardView.gameObject.activeSelf && !controller.CardModel.IsMatched)
+            {
+                Debug.Log("Not All Matched Yet!!!");
+                return false;
+            }
+        }
+        return true;
+    }
+    private void OnGameWon()
+    {
+        Debug.Log("You Won!!!");
+    }
 }
 
 

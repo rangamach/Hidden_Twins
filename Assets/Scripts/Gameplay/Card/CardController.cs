@@ -19,11 +19,7 @@ public class CardController
     public void SetGameplayController(GameplayController controller) => this.gameplayController = controller;
     public void OnCardClicked()
     {
-        if (CardModel.IsMatched || CardModel.IsRevealed)
-        {
-            return;
-        }
-        if(gameplayController.IsBusyChecking())
+        if ((CardModel.IsMatched || CardModel.IsRevealed) || gameplayController.IsBusyChecking())
         {
             return;
         }
@@ -36,15 +32,25 @@ public class CardController
     {
         CardModel.SetFrontImage(frontSprite);
         CardView.SetFrontSprite(frontSprite);
+        CardModel.IsMatched = false;
+        CardModel.IsRevealed = false;
         CardView.ResetView();
+
+        HideCard();
     }
     public void HideCard()
     {
         CardModel.IsRevealed = false;
         CardView.FlipCard(false);
     }
-    public void MarkMarched()
+    public void MarkMatched()
     {
         CardModel.IsMatched = true;
+        CardView.FlipCard(true);
+    }
+    public void RevealCard()
+    {
+        CardModel.IsRevealed = true;
+        CardView.FlipCard(true);
     }
 }
