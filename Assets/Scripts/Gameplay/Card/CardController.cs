@@ -23,6 +23,10 @@ public class CardController
         {
             return;
         }
+        if(gameplayController.IsBusyChecking())
+        {
+            return;
+        }
         CardModel.IsRevealed = true;
         CardView.FlipCard(true);
 

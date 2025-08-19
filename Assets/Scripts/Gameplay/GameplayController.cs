@@ -127,6 +127,7 @@ public class GameplayController
         secondFlippedCard = null;
         isCheckingMatch = false;
     }
+    public bool IsBusyChecking() => isCheckingMatch;
 }
 
 
