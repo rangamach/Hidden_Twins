@@ -31,6 +31,13 @@ public class UIService : MonoBehaviour
 
     private void Awake()
     {
+        AddButtonOnClicks();
+
+        MainMenu.gameObject.SetActive(true);
+    }
+    //Adds listeners to all buttons
+    private void AddButtonOnClicks()
+    {
         PlayButton.onClick.AddListener(OnPlayButtonClicked);
         InfoButton.onClick.AddListener(OnInfoButtonClicked);
         BackButton.onClick.AddListener(OnBackButtonClicked);
@@ -38,11 +45,11 @@ public class UIService : MonoBehaviour
         RestartButton.onClick.AddListener(OnRestartButtonClicked);
         Restart.onClick.AddListener(OnRestartButtonClicked);
         Back.onClick.AddListener(OnBackButtonClicked);
-
-        MainMenu.gameObject.SetActive(true);
     }
+
     private void Update()
     {
+        //update only if in gameplay mode
         if (Gameplay.gameObject.activeInHierarchy)
         {
             UpdateTimerText();

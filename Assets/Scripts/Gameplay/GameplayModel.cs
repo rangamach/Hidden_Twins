@@ -1,5 +1,3 @@
-using UnityEngine.UI;
-
 public enum Difficulty
 {
     Normal,
@@ -17,6 +15,7 @@ public class GameplayModel
 
         SetGridSize(difficulty);
     }
+    //Sets grid size based on difficulty
     private void SetGridSize(Difficulty difficulty)
     {
         switch(difficulty)

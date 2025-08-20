@@ -7,6 +7,8 @@ public class GameplayView : MonoBehaviour
     [SerializeField] private GridLayoutGroup gridLayoutGroup;
 
     [SerializeField] private float cellArea;
+
+    //Organize the cards in scene
     public void PlaceCards(CardView card, int gridSize)
     {
         card.transform.SetParent(gridLayoutGroup.transform,false);

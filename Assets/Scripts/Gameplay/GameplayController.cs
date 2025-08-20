@@ -17,30 +17,45 @@ public class GameplayController
     private CardController secondFlippedCard = null;
     private bool isCheckingMatch = false;
     public GameplayController(GameplayView gameplayView,CardSO cardSO)
+    {
+        InitializeVariables(gameplayView, cardSO);
+
+        CreateCardControllers(cardSO);
+    }
+
+    private void CreateCardControllers(CardSO cardSO)
+    {
+        for (int i = 0; i < maxCards; i++)
         {
-            this.gameplayView = Object.Instantiate(gameplayView.gameObject).GetComponent<GameplayView>();
-            this.gameplayModel = new GameplayModel();
-
-            this.CardSO = cardSO;
-
-            this.gameplayView.SetController(this);
-
-            for (int i = 0; i < maxCards;i++)
-            {
-                var controller = new CardController(CardSO.cardPrefab, cardSO.BackImage);
-                controller.CardView.gameObject.SetActive(false);
-                cardControllers.Add(controller);
-                this.gameplayView.PlaceCards(controller.CardView, 6);
-            }
+            var controller = new CardController(CardSO.cardPrefab, cardSO.BackImage);
+            controller.CardView.gameObject.SetActive(false);
+            cardControllers.Add(controller);
+            this.gameplayView.PlaceCards(controller.CardView, 6);
         }
+    }
+
+    private void InitializeVariables(GameplayView gameplayView, CardSO cardSO)
+    {
+        this.gameplayView = Object.Instantiate(gameplayView.gameObject).GetComponent<GameplayView>();
+        this.gameplayModel = new GameplayModel();
+
+        this.CardSO = cardSO;
+
+        this.gameplayView.SetController(this);
+    }
+
     private void CreateBoard(Difficulty difficulty)
     {
+        //Reset Model:
         gameplayModel.SetDifficulty(difficulty);
         gameplayModel.SetTotalAttempts(0);
         gameplayModel.SetTime(0);
+
+
         int gridSize = gameplayModel.gridSize;
         int totalCards = gridSize * gridSize;
 
+        //Obtain front pictures and shuffle them around the grid.
         List<Sprite> chosenFronts = new List<Sprite>();
         ShuffleDeck(CardSO.FrontImages);
 
@@ -51,6 +66,7 @@ public class GameplayController
         }
         ShuffleDeck(chosenFronts);
 
+        //Assign each card controllers pictures and size
         for (int i = 0; i < maxCards; i++)
         {
             if (i < totalCards)
@@ -107,6 +123,7 @@ public class GameplayController
             GameService.Instance.StartCoroutine(CheckMatchRoutine());
         }
     }
+    //Coroutine to check if flipped cards match or not.
     private IEnumerator CheckMatchRoutine()
     {
         isCheckingMatch = true;
@@ -115,34 +132,47 @@ public class GameplayController
 
         if (firstFlippedCard.CardModel.FrontImage == secondFlippedCard.CardModel.FrontImage)
         {
-            firstFlippedCard.MarkMatched();
-            secondFlippedCard.MarkMatched();
-
-            if(WinCheck())
-            {
-                GameService.Instance.UIService.ShowTickOrX(true);
-                OnGameWon();
-            }
-            else
-            {
-                GameService.Instance.UIService.ShowTickOrX(true);
-                GameService.Instance.SoundService.PlaySFX(SoundType.Match);
-            }
+            CardsMatch();
         }
         else
         {
-            GameService.Instance.UIService.ShowTickOrX(false);
-            GameService.Instance.SoundService.PlaySFX(SoundType.No_Match);
-            firstFlippedCard.HideCard();
-            secondFlippedCard.HideCard();
+            CardsNotMatching();
         }
 
+        //increment attempts counter
         gameplayModel.SetTotalAttempts(GetAttemptsCount() + 1);
 
+        //reset flipped card and is checking
         firstFlippedCard = null;
         secondFlippedCard = null;
         isCheckingMatch = false;
     }
+
+    private void CardsNotMatching()
+    {
+        GameService.Instance.UIService.ShowTickOrX(false);
+        GameService.Instance.SoundService.PlaySFX(SoundType.No_Match);
+        firstFlippedCard.HideCard();
+        secondFlippedCard.HideCard();
+    }
+
+    private void CardsMatch()
+    {
+        firstFlippedCard.MarkMatched();
+        secondFlippedCard.MarkMatched();
+
+        if (WinCheck())
+        {
+            GameService.Instance.UIService.ShowTickOrX(true);
+            OnGameWon();
+        }
+        else
+        {
+            GameService.Instance.UIService.ShowTickOrX(true);
+            GameService.Instance.SoundService.PlaySFX(SoundType.Match);
+        }
+    }
+
     public bool IsBusyChecking() => isCheckingMatch;
     private bool WinCheck()
     {
@@ -167,5 +197,3 @@ public class GameplayController
     public void SetTime(float time) => gameplayModel.SetTime(time);
     public void ToggleGameplayCanvas(bool toggle) => gameplayView.gameObject.SetActive(toggle);
 }
-
-

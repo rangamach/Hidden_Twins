@@ -1,6 +1,5 @@
-using UnityEngine.UI;
 using UnityEngine;
-using Unity.VisualScripting;
+
 
 public class CardController
 {
@@ -9,9 +8,11 @@ public class CardController
     private GameplayController gameplayController;
     public CardController(CardView prefab, Sprite back)
     {
+        //Instantiate View and Model
         this.CardView = Object.Instantiate(prefab.gameObject).GetComponent<CardView>();
         this.CardModel = new CardModel(back);
 
+        //Set the back / hidden sprite
         this.CardView.SetBackSprite(this.CardModel.BackImage);
 
         CardView.SetController(this);
@@ -19,6 +20,7 @@ public class CardController
     public void SetGameplayController(GameplayController controller) => this.gameplayController = controller;
     public void OnCardClicked()
     {
+        //checks is card is matched already, already revealed or the gameplay controller busy checking other 2 cards
         if ((CardModel.IsMatched || CardModel.IsRevealed) || gameplayController.IsBusyChecking())
         {
             return;
@@ -33,10 +35,9 @@ public class CardController
     {
         CardModel.SetFrontImage(frontSprite);
         CardView.SetFrontSprite(frontSprite);
+        CardModel.IsRevealed = false;
         CardModel.IsMatched = false;
         CardView.ResetView();
-
-        HideCard();
     }
     public void HideCard()
     {
@@ -46,11 +47,6 @@ public class CardController
     public void MarkMatched()
     {
         CardModel.IsMatched = true;
-        CardView.FlipCard(true);
-    }
-    public void RevealCard()
-    {
-        CardModel.IsRevealed = true;
         CardView.FlipCard(true);
     }
 }

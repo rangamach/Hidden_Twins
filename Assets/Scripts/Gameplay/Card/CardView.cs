@@ -55,6 +55,7 @@ public class CardView : MonoBehaviour
         if (isBusy) return;
         StartCoroutine(FlipRoutine(showFront));
     }
+    //this coroutine does the flipping of the card
     private IEnumerator FlipRoutine(bool showFront)
     {
         isBusy = true;
