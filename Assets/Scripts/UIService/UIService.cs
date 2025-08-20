@@ -18,6 +18,14 @@ public class UIService : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attemptsCountText;
     [SerializeField] private TextMeshProUGUI timerText;
 
+    [Header("Gameover")]
+    [SerializeField] private Button Restart;
+    [SerializeField] private Button Back;
+    [SerializeField] private RectTransform Gameover;
+    [SerializeField] private TextMeshProUGUI finalAttempts;
+    [SerializeField] private TextMeshProUGUI finalTime;
+    [SerializeField] private TextMeshProUGUI finalScore;
+
     private void Awake()
     {
         PlayButton.onClick.AddListener(OnPlayButtonClicked);
@@ -25,6 +33,8 @@ public class UIService : MonoBehaviour
         BackButton.onClick.AddListener(OnBackButtonClicked);
         ExitButton.onClick.AddListener(OnExitButtonClicked);
         RestartButton.onClick.AddListener(OnRestartButtonClicked);
+        Restart.onClick.AddListener(OnRestartButtonClicked);
+        Back.onClick.AddListener(OnBackButtonClicked);
 
         MainMenu.gameObject.SetActive(true);
     }
@@ -51,7 +61,17 @@ public class UIService : MonoBehaviour
     }
     private void OnBackButtonClicked()
     {
-        Info.gameObject.SetActive(false);
+        if(Gameover.gameObject.activeInHierarchy)
+        {
+            Gameover.gameObject.SetActive(false);
+            Gameplay.gameObject.SetActive(false);
+
+            GameService.Instance.GameplayService.ToggleGameplayCanvas(false);
+        }
+        else
+        {
+            Info.gameObject.SetActive(false);
+        }
         MainMenu.gameObject.SetActive(true);
     }
     private void OnExitButtonClicked()
@@ -66,7 +86,14 @@ public class UIService : MonoBehaviour
     //Gameplay:
     private void OnRestartButtonClicked()
     {
+        if (Gameover.gameObject.activeInHierarchy)
+        {
+            Gameover.gameObject.SetActive(false);
+            Gameplay.gameObject.SetActive(true);
+        }
+
         GameService.Instance.GameplayService.RestartGame();
+
     }
     private void UpdateAttemptsCountText()
     {
@@ -77,18 +104,46 @@ public class UIService : MonoBehaviour
         float currentTime = GameService.Instance.GameplayService.GetTime();
         currentTime += Time.deltaTime;
 
-        int hours = Mathf.FloorToInt(currentTime / 3600);
-        int minutes = Mathf.FloorToInt(currentTime % 3600 / 60);
-        int seconds = Mathf.FloorToInt(currentTime % 60);
+        timerText.text = FormatTime(currentTime);
+
+        GameService.Instance.GameplayService.SetTime(currentTime);
+    }
+    private string FormatTime(float time)
+    {
+        int hours = Mathf.FloorToInt(time / 3600);
+        int minutes = Mathf.FloorToInt(time % 3600 / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
 
         if (hours > 0)
         {
-            timerText.text = $"{hours:00}:{minutes:00}:{seconds:00}";
+            return $"{hours:00}:{minutes:00}:{seconds:00}";
         }
         else
         {
-            timerText.text = $"{minutes:00}:{seconds:00}";
+            return $"{minutes:00}:{seconds:00}";
         }
-        GameService.Instance.GameplayService.SetTime(currentTime);
+    }
+
+    //Game Over
+    public void GameOver()
+    {
+        Gameplay.gameObject.SetActive(false);
+
+        int attempts = GameService.Instance.GameplayService.GetAttemptsCount();
+        float time = GameService.Instance.GameplayService.GetTime();
+        int score = CalculateScore(attempts,time);
+        finalAttempts.text = attempts.ToString();
+        finalTime.text = FormatTime(time);
+        finalScore.text = score.ToString();
+
+        Gameover.gameObject.SetActive(true);
+    }
+    private int CalculateScore(int attempts,float time)
+    {
+        int baseScore = 1000;
+        int attemptsPenalty = attempts * 15;
+        int timePenalty = Mathf.FloorToInt(time * 2f);
+
+        return Mathf.Max(0, baseScore - attemptsPenalty - timePenalty);
     }
 }

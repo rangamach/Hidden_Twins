@@ -66,6 +66,8 @@ public class GameplayController
             }
         }
         gameplayView.AdjustGrid(gridSize);
+
+        ToggleGameplayCanvas(true);
     }
     private Vector2 GetCardSize(Difficulty difficulty)
     {
@@ -140,7 +142,6 @@ public class GameplayController
         {
             if(controller.CardView.gameObject.activeSelf && !controller.CardModel.IsMatched)
             {
-                Debug.Log("Not All Matched Yet!!!");
                 return false;
             }
         }
@@ -148,12 +149,13 @@ public class GameplayController
     }
     private void OnGameWon()
     {
-        Debug.Log("You Won!!!");
+        GameService.Instance.UIService.GameOver(); 
     }
     public void Play(Difficulty difficulty) => CreateBoard(difficulty);
     public int GetAttemptsCount() => gameplayModel.TotalAttempts;
     public float GetTime() => gameplayModel.Time;
     public void SetTime(float time) => gameplayModel.SetTime(time);
+    public void ToggleGameplayCanvas(bool toggle) => gameplayView.gameObject.SetActive(toggle);
 }
 
 
