@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,8 @@ public class UIService : MonoBehaviour
     [Header("Gameplay")]
     [SerializeField] private RectTransform Gameplay;
     [SerializeField] private Button RestartButton;
+    [SerializeField] private TextMeshProUGUI attemptsCountText;
+    [SerializeField] private TextMeshProUGUI timerText;
 
     private void Awake()
     {
@@ -25,7 +28,14 @@ public class UIService : MonoBehaviour
 
         MainMenu.gameObject.SetActive(true);
     }
-
+    private void Update()
+    {
+        if (Gameplay.gameObject.activeInHierarchy)
+        {
+            UpdateTimerText();
+            UpdateAttemptsCountText();
+        }
+    }
     //Start:
     private void OnPlayButtonClicked()
     {
@@ -57,5 +67,28 @@ public class UIService : MonoBehaviour
     private void OnRestartButtonClicked()
     {
         GameService.Instance.GameplayService.RestartGame();
+    }
+    private void UpdateAttemptsCountText()
+    {
+        attemptsCountText.text = GameService.Instance.GameplayService.GetAttemptsCount().ToString();
+    }
+    private void UpdateTimerText()
+    {
+        float currentTime = GameService.Instance.GameplayService.GetTime();
+        currentTime += Time.deltaTime;
+
+        int hours = Mathf.FloorToInt(currentTime / 3600);
+        int minutes = Mathf.FloorToInt(currentTime % 3600 / 60);
+        int seconds = Mathf.FloorToInt(currentTime % 60);
+
+        if (hours > 0)
+        {
+            timerText.text = $"{hours:00}:{minutes:00}:{seconds:00}";
+        }
+        else
+        {
+            timerText.text = $"{minutes:00}:{seconds:00}";
+        }
+        GameService.Instance.GameplayService.SetTime(currentTime);
     }
 }

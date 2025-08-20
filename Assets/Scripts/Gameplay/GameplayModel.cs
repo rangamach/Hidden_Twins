@@ -8,12 +8,9 @@ public enum Difficulty
 public class GameplayModel
 {
     public Difficulty CurrentDifficulty { get; private set; }
+    public int TotalAttempts { get; private set; }
+    public float Time { get; private set; }
     public int gridSize { get; private set; }
-
-    //public GameplayModel(Difficulty difficulty)
-    //{
-    //    SetDifficulty(difficulty);
-    //}
     public void SetDifficulty(Difficulty difficulty)
     {
         this.CurrentDifficulty = difficulty;
@@ -29,4 +26,6 @@ public class GameplayModel
                 break;
         }
     }
+    public void SetTotalAttempts(int attempts) => this.TotalAttempts = attempts;
+    public void SetTime(float time) => this.Time = time;
 }

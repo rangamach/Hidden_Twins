@@ -6,5 +6,8 @@ public class GameplayService
         gameplayController = new GameplayController(gameplayso.GameplayView,cardso);  
     }
     public void Play(Difficulty difficulty) => gameplayController.Play(difficulty);
+    public int GetAttemptsCount() => gameplayController.GetAttemptsCount();
+    public float GetTime() => gameplayController.GetTime();
+    public void SetTime(float time) => gameplayController.SetTime(time);
     public void RestartGame() => gameplayController.RestartGame(Difficulty.Normal);
 }

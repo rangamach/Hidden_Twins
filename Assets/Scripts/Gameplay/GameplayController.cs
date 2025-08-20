@@ -36,6 +36,8 @@ public class GameplayController
     private void CreateBoard(Difficulty difficulty)
     {
         gameplayModel.SetDifficulty(difficulty);
+        gameplayModel.SetTotalAttempts(0);
+        gameplayModel.SetTime(0);
         int gridSize = gameplayModel.gridSize;
         int totalCards = gridSize * gridSize;
 
@@ -124,6 +126,9 @@ public class GameplayController
             firstFlippedCard.HideCard();
             secondFlippedCard.HideCard();
         }
+
+        gameplayModel.SetTotalAttempts(GetAttemptsCount() + 1);
+
         firstFlippedCard = null;
         secondFlippedCard = null;
         isCheckingMatch = false;
@@ -146,6 +151,9 @@ public class GameplayController
         Debug.Log("You Won!!!");
     }
     public void Play(Difficulty difficulty) => CreateBoard(difficulty);
+    public int GetAttemptsCount() => gameplayModel.TotalAttempts;
+    public float GetTime() => gameplayModel.Time;
+    public void SetTime(float time) => gameplayModel.SetTime(time);
 }
 
 
