@@ -122,9 +122,14 @@ public class GameplayController
             {
                 OnGameWon();
             }
+            else
+            {
+                GameService.Instance.SoundService.PlaySFX(SoundType.Match);
+            }
         }
         else
         {
+            GameService.Instance.SoundService.PlaySFX(SoundType.No_Match);
             firstFlippedCard.HideCard();
             secondFlippedCard.HideCard();
         }
@@ -145,10 +150,12 @@ public class GameplayController
                 return false;
             }
         }
+        GameService.Instance.SoundService.PlaySFX(SoundType.Match);
         return true;
     }
     private void OnGameWon()
     {
+        GameService.Instance.SoundService.PlaySFX(SoundType.Won);
         GameService.Instance.UIService.GameOver(); 
     }
     public void Play(Difficulty difficulty) => CreateBoard(difficulty);

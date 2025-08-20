@@ -23,6 +23,7 @@ public class CardController
         {
             return;
         }
+        GameService.Instance.SoundService.PlaySFX(SoundType.Card_Flip);
         CardModel.IsRevealed = true;
         CardView.FlipCard(true);
 

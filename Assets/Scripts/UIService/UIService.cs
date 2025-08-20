@@ -49,6 +49,7 @@ public class UIService : MonoBehaviour
     //Start:
     private void OnPlayButtonClicked()
     {
+        GameService.Instance.SoundService.PlaySFX(SoundType.Game_Start);
         GameService.Instance.GameplayService.Play(Difficulty.Normal);
         MainMenu.gameObject.SetActive(false);
         Gameplay.gameObject.SetActive(true);
@@ -56,12 +57,14 @@ public class UIService : MonoBehaviour
     }
     private void OnInfoButtonClicked()
     {
+        GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
         MainMenu.gameObject.SetActive(false);
         Info.gameObject.SetActive(true);
     }
     private void OnBackButtonClicked()
     {
-        if(Gameover.gameObject.activeInHierarchy)
+        GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
+        if (Gameover.gameObject.activeInHierarchy)
         {
             Gameover.gameObject.SetActive(false);
             Gameplay.gameObject.SetActive(false);
@@ -76,6 +79,7 @@ public class UIService : MonoBehaviour
     }
     private void OnExitButtonClicked()
     {
+        GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -86,6 +90,7 @@ public class UIService : MonoBehaviour
     //Gameplay:
     private void OnRestartButtonClicked()
     {
+        GameService.Instance.SoundService.PlaySFX(SoundType.Game_Start);
         if (Gameover.gameObject.activeInHierarchy)
         {
             Gameover.gameObject.SetActive(false);
