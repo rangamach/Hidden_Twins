@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,8 @@ public class UIService : MonoBehaviour
     [SerializeField] private Button RestartButton;
     [SerializeField] private TextMeshProUGUI attemptsCountText;
     [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private Image Tick;
+    [SerializeField] private Image X;
 
     [Header("Gameover")]
     [SerializeField] private Button Restart;
@@ -127,6 +130,25 @@ public class UIService : MonoBehaviour
         {
             return $"{minutes:00}:{seconds:00}";
         }
+    }
+    public void ShowTickOrX(bool choice)
+    {
+        Image img;
+        if(choice)
+        {
+            img = Tick;
+        }
+        else
+        {
+            img = X;
+        }
+        StartCoroutine(TickXCouroutine(img));
+    }
+    private IEnumerator TickXCouroutine(Image img)
+    {
+        img.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        img.gameObject.SetActive(false);
     }
 
     //Game Over

@@ -120,15 +120,18 @@ public class GameplayController
 
             if(WinCheck())
             {
+                GameService.Instance.UIService.ShowTickOrX(true);
                 OnGameWon();
             }
             else
             {
+                GameService.Instance.UIService.ShowTickOrX(true);
                 GameService.Instance.SoundService.PlaySFX(SoundType.Match);
             }
         }
         else
         {
+            GameService.Instance.UIService.ShowTickOrX(false);
             GameService.Instance.SoundService.PlaySFX(SoundType.No_Match);
             firstFlippedCard.HideCard();
             secondFlippedCard.HideCard();
