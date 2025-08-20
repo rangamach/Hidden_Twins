@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44de64d52a0ef5448c490e9a0598d56, type: 3}
   m_Name: GameplaySO
   m_EditorClassIdentifier: 
-  GameplayView: {fileID: 3120934974166659182, guid: 2803e6123bd0d2c4285253c4bc12d62a, type: 3}
+  GameplayView: {fileID: 7308040055347880430, guid: 2803e6123bd0d2c4285253c4bc12d62a, type: 3}
