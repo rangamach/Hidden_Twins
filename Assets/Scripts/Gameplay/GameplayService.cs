@@ -7,5 +7,5 @@ public class GameplayService
     public float GetTime() => gameplayController.GetTime();
     public void SetTime(float time) => gameplayController.SetTime(time);
     public void ToggleGameplayCanvas(bool toggle) => gameplayController.ToggleGameplayCanvas(toggle);
-    public void RestartGame() => gameplayController.RestartGame(Difficulty.Normal);
+    public void RestartGame() => gameplayController.RestartGame(gameplayController.GetCurrentDifficulty());
 }

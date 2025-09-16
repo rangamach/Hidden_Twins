@@ -12,10 +12,12 @@ public class UIService : MonoBehaviour
     [SerializeField] private Button ExitButton;
     [SerializeField] private RectTransform Info;
     [SerializeField] private Button BackButton;
+    [SerializeField] private TMP_Dropdown DifficultyDropdown;
 
     [Header("Gameplay")]
     [SerializeField] private RectTransform Gameplay;
     [SerializeField] private Button RestartButton;
+    [SerializeField] private Button QuitButton;
     [SerializeField] private TextMeshProUGUI attemptsCountText;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private Image Tick;
@@ -43,8 +45,11 @@ public class UIService : MonoBehaviour
         BackButton.onClick.AddListener(OnBackButtonClicked);
         ExitButton.onClick.AddListener(OnExitButtonClicked);
         RestartButton.onClick.AddListener(OnRestartButtonClicked);
+        QuitButton.onClick.AddListener(OnBackButtonClicked);
         Restart.onClick.AddListener(OnRestartButtonClicked);
         Back.onClick.AddListener(OnBackButtonClicked);
+
+        DifficultyDropdown.onValueChanged.AddListener(OnDifficultyChanged);
     }
 
     private void Update()
@@ -60,7 +65,7 @@ public class UIService : MonoBehaviour
     private void OnPlayButtonClicked()
     {
         GameService.Instance.SoundService.PlaySFX(SoundType.Game_Start);
-        GameService.Instance.GameplayService.Play(Difficulty.Normal);
+        GameService.Instance.GameplayService.Play(GetDifficulty());
         MainMenu.gameObject.SetActive(false);
         Gameplay.gameObject.SetActive(true);
 
@@ -74,19 +79,36 @@ public class UIService : MonoBehaviour
     private void OnBackButtonClicked()
     {
         GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
-        if (Gameover.gameObject.activeInHierarchy)
+        if (Gameover.gameObject.activeInHierarchy || Gameplay.gameObject.activeInHierarchy)
         {
             Gameover.gameObject.SetActive(false);
             Gameplay.gameObject.SetActive(false);
 
             GameService.Instance.GameplayService.ToggleGameplayCanvas(false);
         }
-        else
+        else if(Info.gameObject.activeInHierarchy)
         {
             Info.gameObject.SetActive(false);
         }
         MainMenu.gameObject.SetActive(true);
     }
+    private Difficulty GetDifficulty()
+    {   
+        switch (DifficultyDropdown.value)
+        {
+            case 0:
+                return Difficulty.Easy;
+            case 1:
+                return Difficulty.Normal;
+            case 2:
+                return Difficulty.Hard;
+            case 3:
+                return Difficulty.VeryHard;
+            default:
+                return Difficulty.Normal;
+        }
+    }
+    private void OnDifficultyChanged(int value) => GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
     private void OnExitButtonClicked()
     {
         GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
@@ -174,8 +196,8 @@ public class UIService : MonoBehaviour
     }
     private int CalculateScore(int attempts,float time)
     {
-        int baseScore = 1000;
-        int attemptsPenalty = attempts * 15;
+        int baseScore = 10000;
+        int attemptsPenalty = attempts * 5;
         int timePenalty = Mathf.FloorToInt(time * 2f);
 
         return Mathf.Max(0, baseScore - attemptsPenalty - timePenalty);

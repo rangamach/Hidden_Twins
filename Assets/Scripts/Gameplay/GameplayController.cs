@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameplayController
 {
-    private int maxCards = 16;
+    private int maxCards = 64;
     public GameplayView gameplayView { get; private set; }
     public GameplayModel gameplayModel { get; private set; }
     public CardSO CardSO { get; private set; }
@@ -89,10 +89,16 @@ public class GameplayController
     {
         switch(difficulty)
         {
+            case Difficulty.Easy:
+                return new Vector2(4f, 4f);
             case Difficulty.Normal:
-                return new Vector2(1.75f, 1.75f);
+                return new Vector2(2f, 2f);
+            case Difficulty.Hard:
+                return new Vector2(1.3f, 1.3f);
+            case Difficulty.VeryHard:
+                return new Vector2(1f, 1f);
             default:
-                return new Vector2(1.75f, 1.75f);
+                return new Vector2(0.75f, 0.75f);
         }
     }
     private void ShuffleDeck<T>(List<T> list)
@@ -105,10 +111,7 @@ public class GameplayController
             (list[random], list[size]) = (list[size], list[random]);
         }
     }
-    public void RestartGame(Difficulty difficulty)
-    {
-        CreateBoard(difficulty);
-    }
+    public void RestartGame(Difficulty difficulty) => Play(difficulty);
     public void OnCardFlipped(CardController card)
     {
         if (isCheckingMatch) return;
@@ -194,6 +197,7 @@ public class GameplayController
     public void Play(Difficulty difficulty) => CreateBoard(difficulty);
     public int GetAttemptsCount() => gameplayModel.TotalAttempts;
     public float GetTime() => gameplayModel.Time;
+    public Difficulty GetCurrentDifficulty() => gameplayModel.CurrentDifficulty;
     public void SetTime(float time) => gameplayModel.SetTime(time);
     public void ToggleGameplayCanvas(bool toggle) => gameplayView.gameObject.SetActive(toggle);
 }

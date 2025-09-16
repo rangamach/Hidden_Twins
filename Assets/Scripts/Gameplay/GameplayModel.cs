@@ -1,6 +1,9 @@
 public enum Difficulty
 {
+    Easy,
     Normal,
+    Hard,
+    VeryHard,
 }
 
 public class GameplayModel
@@ -20,8 +23,17 @@ public class GameplayModel
     {
         switch(difficulty)
         {
+            case Difficulty.Easy:
+                this.gridSize = 2;
+                break;
             case Difficulty.Normal:
                 this.gridSize = 4;
+                break;
+            case Difficulty.Hard:
+                this.gridSize = 6;
+                break;
+            case Difficulty.VeryHard:
+                this.gridSize = 8;
                 break;
         }
     }
