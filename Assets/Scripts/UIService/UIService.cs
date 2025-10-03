@@ -13,6 +13,10 @@ public class UIService : MonoBehaviour
     [SerializeField] private RectTransform Info;
     [SerializeField] private Button BackButton;
     [SerializeField] private TMP_Dropdown DifficultyDropdown;
+    [SerializeField] private TextMeshProUGUI BestStatsStartText;
+    [SerializeField] private TextMeshProUGUI BestTimeStartText;
+    [SerializeField] private TextMeshProUGUI BestAttemptsStartText;
+    [SerializeField] private TextMeshProUGUI BestScoreStartText;
 
     [Header("Gameplay")]
     [SerializeField] private RectTransform Gameplay;
@@ -30,9 +34,18 @@ public class UIService : MonoBehaviour
     [SerializeField] private TextMeshProUGUI finalAttempts;
     [SerializeField] private TextMeshProUGUI finalTime;
     [SerializeField] private TextMeshProUGUI finalScore;
+    [SerializeField] private TextMeshProUGUI bestStatsText;
+    [SerializeField] private TextMeshProUGUI bestTime;
+    [SerializeField] private TextMeshProUGUI bestAttempt;
+    [SerializeField] private TextMeshProUGUI bestScore;
+    [SerializeField] private Image bestTimeHL;
+    [SerializeField] private Image bestAttemptHL;
+    [SerializeField] private Image bestScoreHL;
 
     private void Awake()
     {
+        InitializeKeys();
+
         AddButtonOnClicks();
 
         MainMenu.gameObject.SetActive(true);
@@ -51,7 +64,31 @@ public class UIService : MonoBehaviour
 
         DifficultyDropdown.onValueChanged.AddListener(OnDifficultyChanged);
     }
+    private void InitializeKeys()
+    {
+        const string key = "Initialized";
 
+        if (PlayerPrefs.GetInt(key, 0) == 0)
+        {
+            foreach (Difficulty difficulty in System.Enum.GetValues(typeof(Difficulty)))
+            {
+                string timeKey = GetTimeKey(difficulty);
+                string attemptsKey = GetAttemptsKey(difficulty);
+                string scoreKey = GetScoreKey(difficulty);
+
+                PlayerPrefs.SetFloat(timeKey, float.MaxValue);
+                PlayerPrefs.SetInt(attemptsKey, int.MaxValue);
+                PlayerPrefs.SetInt(scoreKey, 0);
+            }
+
+            PlayerPrefs.SetInt(key, 1);
+            PlayerPrefs.Save();
+        }
+    }
+    private void Start()
+    {
+        ShowBestStats(GetDifficulty());
+    }
     private void Update()
     {
         //update only if in gameplay mode
@@ -86,14 +123,17 @@ public class UIService : MonoBehaviour
 
             GameService.Instance.GameplayService.ToggleGameplayCanvas(false);
         }
-        else if(Info.gameObject.activeInHierarchy)
+        else if (Info.gameObject.activeInHierarchy)
         {
             Info.gameObject.SetActive(false);
         }
+
+        ShowBestStats(GetDifficulty()); 
+
         MainMenu.gameObject.SetActive(true);
     }
     private Difficulty GetDifficulty()
-    {   
+    {
         switch (DifficultyDropdown.value)
         {
             case 0:
@@ -108,14 +148,34 @@ public class UIService : MonoBehaviour
                 return Difficulty.Normal;
         }
     }
-    private void OnDifficultyChanged(int value) => GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
+    private void OnDifficultyChanged(int value)
+    {
+        GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
+        ShowBestStats(GetDifficulty());
+    }
+    private void ShowBestStats(Difficulty selectedDifficulty)
+    {
+        BestStatsStartText.text = $"{selectedDifficulty} Best Stats";
+
+        string timeKey = GetTimeKey(selectedDifficulty);
+        string attemptsKey = GetAttemptsKey(selectedDifficulty);
+        string scoreKey = GetScoreKey(selectedDifficulty);
+
+        float bestTime = PlayerPrefs.GetFloat(timeKey);
+        float bestAttempt = PlayerPrefs.GetInt(attemptsKey);
+        float bestScore = PlayerPrefs.GetInt(scoreKey);
+
+        BestTimeStartText.text = bestTime == float.MaxValue ? "--:--:--" : FormatTime(bestTime);
+        BestAttemptsStartText.text = bestAttempt == int.MaxValue ? "--" : bestAttempt.ToString();
+        BestScoreStartText.text = bestScore.ToString();
+    }
     private void OnExitButtonClicked()
     {
         GameService.Instance.SoundService.PlaySFX(SoundType.Button_Click);
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit();
+            Application.Quit();
 #endif
     }
 
@@ -163,7 +223,7 @@ public class UIService : MonoBehaviour
     public void ShowTickOrX(bool choice)
     {
         Image img;
-        if(choice)
+        if (choice)
         {
             img = Tick;
         }
@@ -187,14 +247,17 @@ public class UIService : MonoBehaviour
 
         int attempts = GameService.Instance.GameplayService.GetAttemptsCount();
         float time = GameService.Instance.GameplayService.GetTime();
-        int score = CalculateScore(attempts,time);
+        int score = CalculateScore(attempts, time);
+
         finalAttempts.text = attempts.ToString();
         finalTime.text = FormatTime(time);
         finalScore.text = score.ToString();
 
+        CheckAndUpdateBestStats(time, attempts, score);
+
         Gameover.gameObject.SetActive(true);
     }
-    private int CalculateScore(int attempts,float time)
+    private int CalculateScore(int attempts, float time)
     {
         int baseScore = 10000;
         int attemptsPenalty = attempts * 5;
@@ -202,4 +265,55 @@ public class UIService : MonoBehaviour
 
         return Mathf.Max(0, baseScore - attemptsPenalty - timePenalty);
     }
+    private void CheckAndUpdateBestStats(float time, int attempts, int score)
+    {
+        Difficulty currentDifficulty = GameService.Instance.GameplayService.GetCurrentDifficulty();
+
+        bestStatsText.text = $"{currentDifficulty} Best Stats";
+
+        bestTimeHL.gameObject.SetActive(false);
+        bestAttemptHL.gameObject.SetActive(false);
+        bestScoreHL.gameObject.SetActive(false);
+
+        string timeKey = GetTimeKey(currentDifficulty);
+        string attemptsKey = GetAttemptsKey(currentDifficulty);
+        string scoreKey = GetScoreKey(currentDifficulty);
+
+        float bestTimeSoFar = PlayerPrefs.GetFloat(timeKey);
+        int bestAttemptSoFar = PlayerPrefs.GetInt(attemptsKey);
+        int bestScoreSoFar = PlayerPrefs.GetInt(scoreKey);
+
+        bool isUpdated = false;
+
+        if (time < bestTimeSoFar)
+        {
+            PlayerPrefs.SetFloat(timeKey, time);
+            bestTimeHL.gameObject.SetActive(true);
+            isUpdated = true;
+        }
+        if (attempts < bestAttemptSoFar)
+        {
+            PlayerPrefs.SetInt(attemptsKey, attempts);
+            bestAttemptHL.gameObject.SetActive(true);
+            isUpdated = true;
+        }
+        if (score > bestScoreSoFar)
+        {
+            PlayerPrefs.SetInt(scoreKey, score);
+            bestScoreHL.gameObject.SetActive(true);
+            isUpdated = true;
+        }
+
+        bestTime.text = FormatTime(PlayerPrefs.GetFloat(timeKey));
+        bestAttempt.text = PlayerPrefs.GetInt(attemptsKey).ToString();
+        bestScore.text = PlayerPrefs.GetInt(scoreKey).ToString();
+
+        if (isUpdated)
+        {
+            PlayerPrefs.Save();
+        }
+    }
+    private string GetTimeKey(Difficulty difficulty) => $"BestTime_{difficulty}";
+    private string GetAttemptsKey(Difficulty difficulty) => $"BestAttempts_{difficulty}";
+    private string GetScoreKey(Difficulty difficulty) => $"BestScore_{difficulty}";
 }

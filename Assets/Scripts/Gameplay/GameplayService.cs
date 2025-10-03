@@ -8,4 +8,5 @@ public class GameplayService
     public void SetTime(float time) => gameplayController.SetTime(time);
     public void ToggleGameplayCanvas(bool toggle) => gameplayController.ToggleGameplayCanvas(toggle);
     public void RestartGame() => gameplayController.RestartGame(gameplayController.GetCurrentDifficulty());
+    public Difficulty GetCurrentDifficulty() => gameplayController.GetCurrentDifficulty();
 }
